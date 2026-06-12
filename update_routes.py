@@ -54,7 +54,7 @@ ROUTES = [
         "headline": "To 15 Freeway",
         "via": "via CA-18 Lucerne Valley",
         "desc": "The back way · High Desert & Las Vegas",
-        "waypoints": ["34.47197002629797, -117.09936486651272"],
+        "waypoints": ["34.471944, -117.107475"],
         "dest": "34.470457, -117.346081",
     },
 ]
