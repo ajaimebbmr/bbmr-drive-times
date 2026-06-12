@@ -17,7 +17,7 @@ OVERRIDES = {
 # ── ORIGIN ─────────────────────────────────────────────────────────────────────
 # Snow Summit / Bear Mountain base area.
 # Swap this for the Snow Valley coordinates when building the SV feed.
-ORIGIN = "34.236818, -116.888750"
+ORIGIN = "34.236818,-116.888750"
 
 # ── ROUTES ─────────────────────────────────────────────────────────────────────
 # Waypoints pin the route to a specific road so TomTom can't pick a shortcut.
@@ -30,7 +30,7 @@ ROUTES = [
         "headline": "To 210 Freeway",
         "via": "via CA-18 Running Springs to CA-330",
         "desc": "Toward Highland · LA / OC / Inland Empire",
-        "waypoints": ["34.205167, -117.112798", "34.179970, -117.163001"],
+        "waypoints": ["34.205167,-117.112798", "34.179970,-117.163001"],
         "dest": "34.136158, -117.191792",
     },
     {
@@ -38,23 +38,23 @@ ROUTES = [
         "headline": "To 210 Freeway",
         "via": "via CA-18 through Running Springs",
         "desc": "Toward Crestline & San Bernardino",
-        "waypoints": ["34.226757, -117.134675"],
-        "dest": "34.147017, -117.279029",
+        "waypoints": ["34.226757,-117.134675"],
+        "dest": "34.147017,-117.279029",
     },
     {
         "id": "38",
         "headline": "To 10 Freeway",
         "via": "via CA-38",
         "desc": "Toward Angelus Oaks & Redlands",
-        "waypoints": ["34.126930, -116.984277"],
-        "dest": "34.070346, -117.182765",
+        "waypoints": ["34.126930,-116.984277"],
+        "dest": "34.070346,-117.182765",
     },
     {
         "id": "18lv",
         "headline": "To 15 Freeway",
         "via": "via CA-18 Lucerne Valley",
         "desc": "The back way · High Desert & Las Vegas",
-        "waypoints": ["34.446706, -116.993016"],
+        "waypoints": ["34.446706,-116.993016"],
         "dest": "34.4163,-117.3017",
     },
 ]
