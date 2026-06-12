@@ -1,0 +1,118 @@
+import requests, json, os
+from datetime import datetime, timezone
+
+KEY = os.environ["TOMTOM_KEY"]
+
+# ── OVERRIDES ──────────────────────────────────────────────────────────────────
+# This is the manual control panel. Change status to "open" when a road reopens.
+# Add or remove a message for any route by changing the text (or setting to None).
+# ──────────────────────────────────────────────────────────────────────────────
+OVERRIDES = {
+    "330":  { "status": "open",   "message": None },
+    "18rs": { "status": "open",   "message": None },
+    "38":   { "status": "closed", "message": "CA-38 closed — storm damage. Use CA-330 or CA-18 instead." },
+    "18lv": { "status": "open",   "message": None },
+}
+
+# ── ORIGIN ─────────────────────────────────────────────────────────────────────
+# Snow Summit / Bear Mountain base area.
+# Swap this for the Snow Valley coordinates when building the SV feed.
+ORIGIN = "34.2217,-116.8913"
+
+# ── ROUTES ─────────────────────────────────────────────────────────────────────
+# Waypoints pin the route to a specific road so TomTom can't pick a shortcut.
+# If a drive time looks wrong after launch, nudge the waypoint coordinates on
+# Google Maps until it follows the right road.
+# ──────────────────────────────────────────────────────────────────────────────
+ROUTES = [
+    {
+        "id": "330",
+        "headline": "To 210 Freeway",
+        "via": "via CA-18 Running Springs to CA-330",
+        "desc": "Toward Highland · LA / OC / Inland Empire",
+        "waypoints": ["34.2046,-117.1122", "34.1800,-117.1600"],
+        "dest": "34.1408,-117.2009",
+    },
+    {
+        "id": "18rs",
+        "headline": "To 210 Freeway",
+        "via": "via CA-18 through Running Springs",
+        "desc": "Toward Crestline & San Bernardino",
+        "waypoints": ["34.2300,-117.0500"],
+        "dest": "34.1064,-117.2898",
+    },
+    {
+        "id": "38",
+        "headline": "To 10 Freeway",
+        "via": "via CA-38",
+        "desc": "Toward Angelus Oaks & Redlands",
+        "waypoints": ["34.1367,-116.9882"],
+        "dest": "34.0556,-117.1750",
+    },
+    {
+        "id": "18lv",
+        "headline": "To 15 Freeway",
+        "via": "via CA-18 Lucerne Valley",
+        "desc": "The back way · High Desert & Las Vegas",
+        "waypoints": ["34.4200,-116.8800"],
+        "dest": "34.4163,-117.3017",
+    },
+]
+
+def round5(minutes):
+    """Round to nearest 5 — avoids implying false precision on the board."""
+    return round(minutes / 5) * 5
+
+def fetch_times(route):
+    locations = ":".join([ORIGIN] + route["waypoints"] + [route["dest"]])
+    url = f"https://api.tomtom.com/routing/1/calculateRoute/{locations}/json"
+    r = requests.get(url, params={
+        "key": KEY,
+        "traffic": "true",
+        "computeTravelTimeFor": "all",
+        "travelMode": "car"
+    }, timeout=15)
+    r.raise_for_status()
+    summary = r.json()["routes"][0]["summary"]
+    return {
+        "minutes": round5(summary["travelTimeInSeconds"] / 60),
+        "typical": round5(summary["noTrafficTravelTimeInSeconds"] / 60),
+    }
+
+results = []
+for route in ROUTES:
+    override = OVERRIDES[route["id"]]
+    row = {
+        "headline": route["headline"],
+        "via":      route["via"],
+        "desc":     route["desc"],
+    }
+
+    if override["status"] == "closed":
+        row["status"]  = "closed"
+        row["message"] = override["message"]
+        print(f"  — {route['id']}: CLOSED (override)")
+    else:
+        try:
+            times = fetch_times(route)
+            row["status"]  = "open"
+            row["minutes"] = times["minutes"]
+            row["typical"] = times["typical"]
+            if override["message"]:
+                row["message"] = override["message"]
+            print(f"  ✓ {route['id']}: {times['minutes']} min (typical {times['typical']} min)")
+        except Exception as e:
+            print(f"  ✗ {route['id']}: API call failed — {e}")
+            row["status"] = "unknown"
+
+    results.append(row)
+
+output = {
+    "updatedAt": datetime.now(timezone.utc).isoformat(),
+    "routes": results
+}
+
+with open("routes.json", "w") as f:
+    json.dump(output, f, indent=2)
+
+print("\nroutes.json written successfully.")
