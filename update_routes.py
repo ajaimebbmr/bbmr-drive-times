@@ -30,32 +30,32 @@ ROUTES = [
         "headline": "To 210 Freeway",
         "via": "via CA-18 Running Springs to CA-330",
         "desc": "Toward Highland · LA / OC / Inland Empire",
-        "waypoints": ["34.164402, -117.182765"],
-        "dest": "34.131517,-117.201018,
+        "waypoints": ["34.164402,-117.182765"],
+        "dest": "34.131517,-117.201018"
     },
     {
         "id": "18rs",
         "headline": "To 210 Freeway",
         "via": "via CA-18 through Running Springs",
         "desc": "Toward Crestline & San Bernardino",
-        "waypoints": ["34.227517, -117.272656"],
-        "dest": "34.145807,-117.278808,
+        "waypoints": ["34.227517,-117.272656"],
+        "dest": "34.145807,-117.278808"
     },
     {
         "id": "38",
         "headline": "To 10 Freeway",
         "via": "via CA-38",
         "desc": "Toward Angelus Oaks & Redlands",
-        "waypoints": ["34.099401, -117.026577"],
-        "dest": "34.070172,-117.182595,
+        "waypoints": ["34.099401,-117.026577"],
+        "dest": "34.070172,-117.182595"
     },
     {
         "id": "18lv",
         "headline": "To 15 Freeway",
         "via": "via CA-18 Lucerne Valley",
         "desc": "The back way · High Desert & Las Vegas",
-        "waypoints": ["34.471944, -117.107475"],
-        "dest": "34.470457,-117.346081,
+        "waypoints": ["34.471944,-117.107475"],
+        "dest": "34.470457,-117.346081"
     },
 ]
 
