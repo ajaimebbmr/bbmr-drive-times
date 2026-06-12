@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-12T01:00:36.316406+00:00",
+  "updatedAt": "2026-06-12T01:26:39.358670+00:00",
   "routes": [
     {
       "headline": "To 210 Freeway",
@@ -21,8 +21,9 @@
       "headline": "To 10 Freeway",
       "via": "via CA-38",
       "desc": "Toward Angelus Oaks & Redlands",
-      "status": "closed",
-      "message": "CA-38 closed \u2014 storm damage. Use CA-330 or CA-18 instead."
+      "status": "open",
+      "minutes": 110,
+      "typical": 105
     },
     {
       "headline": "To 15 Freeway",
