@@ -31,7 +31,7 @@ ROUTES = [
         "via": "via CA-18 Running Springs to CA-330",
         "desc": "Toward Highland · LA / OC / Inland Empire",
         "waypoints": ["34.205167,-117.112798", "34.179970,-117.163001"],
-        "dest": "34.136158, -117.191792",
+        "dest": "34.136158,-117.191792",
     },
     {
         "id": "18rs",
