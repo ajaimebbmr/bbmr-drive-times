@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-12T20:03:49.386413+00:00",
+  "updatedAt": "2026-06-12T20:39:40.438426+00:00",
   "routes": [
     {
       "headline": "To 210 Freeway",
@@ -14,7 +14,7 @@
       "via": "via CA-18 through Running Springs",
       "desc": "Toward Crestline & San Bernardino",
       "status": "open",
-      "minutes": 75,
+      "minutes": 70,
       "typical": 65
     },
     {
