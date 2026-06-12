@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Big Bear Mountain Resort — Current Drive Times</title>
+<style>
+  /* ============================================================
+     THEME — per-resort branding lives here.
+     "Black instead of blue" was the round-2 decision; to restore
+     the v1 navy look, set --ink to #0f2d5c.
+     ============================================================ */
+  :root{
+    --ink:#15191e;            /* headings & big numbers */
+    --body:#3c444c;           /* secondary text */
+    --muted:#71797f;          /* descriptors, captions */
+    --page:#eef1f4;           /* page background */
+    --card:#ffffff;
+    --panel:#f4f7fa;          /* inner number panel */
+    --line:#dfe4e8;
+    --accent:#f26b2b;         /* delay / brand orange from prototype */
+    --light:#1d9e57;
+    --moderate:#f07f1f;
+    --heavy:#e23c3c;
+    --banner-warn-bg:#fde3c8; --banner-warn-ink:#7a4310;
+    --banner-closed-bg:#fbdcdc; --banner-closed-ink:#8c2024;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    background:var(--page); color:var(--ink);
+    font-family:-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .board{
+    height:100%; max-width:1920px; margin:0 auto;
+    display:flex; flex-direction:column;
+    padding:2.2vmin 2.6vmin; gap:1.8vmin;
+  }
+
+  /* ---------- header ---------- */
+  header{display:flex; justify-content:space-between; align-items:flex-start; gap:2vmin;}
+  .id{display:flex; align-items:center; gap:1.4vmin;}
+  .id img{height:5.4vmin; width:auto;}
+  .id h1{font-size:3vmin; font-weight:700; letter-spacing:-0.01em;}
+  .id .sub{font-size:1.7vmin; color:var(--muted); margin-top:0.3vmin;}
+  .meta{text-align:right;}
+  .clockcard{
+    display:inline-block; background:var(--card); border:1px solid var(--line);
+    border-radius:1vmin; padding:0.9vmin 1.6vmin;
+  }
+  .clockcard .time{font-size:2.6vmin; font-weight:700;}
+  .clockcard .date{font-size:1.4vmin; color:var(--muted);}
+  .legend{display:flex; gap:1.6vmin; justify-content:flex-end; margin-top:0.9vmin; font-size:1.4vmin; color:var(--body);}
+  .legend span{display:flex; align-items:center; gap:0.5vmin;}
+  .dot{width:1.1vmin; height:1.1vmin; border-radius:50%; display:inline-block;}
+
+  /* ---------- global notice (stale feed) ---------- */
+  .notice{
+    display:none; background:var(--banner-warn-bg); color:var(--banner-warn-ink);
+    border-radius:1vmin; padding:1.2vmin 1.8vmin; font-size:1.9vmin; font-weight:600;
+  }
+  .board.stale .notice{display:block;}
+
+  /* ---------- cards ---------- */
+  main{flex:1; display:grid; grid-template-columns:1fr 1fr; grid-auto-rows:1fr; gap:1.8vmin; min-height:0;}
+  .route{
+    background:var(--card); border:1px solid var(--line); border-radius:1.2vmin;
+    padding:1.6vmin 1.8vmin 1.4vmin; display:flex; flex-direction:column; gap:1vmin;
+    min-height:0; overflow:hidden;
+  }
+  .r-head .headline{display:flex; align-items:center; gap:0.9vmin; font-size:2.5vmin; font-weight:700;}
+  .r-head .headline svg{width:2.3vmin; height:2.3vmin; flex:none;}
+  .r-head .via{font-size:1.8vmin; font-weight:700; color:var(--body); margin-top:0.2vmin;}
+  .r-head .desc{font-size:1.5vmin; color:var(--muted); margin-top:0.2vmin;}
+  .status{display:flex; align-items:center; gap:0.6vmin; font-size:1.5vmin; font-weight:700; margin-top:0.5vmin;}
+  .rule{height:0.35vmin; border-radius:0.2vmin; background:var(--line);}
+
+  .panel{
+    flex:1; background:var(--panel); border:1px solid var(--line); border-radius:1vmin;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:1vmin; min-height:0; text-align:center;
+  }
+  .minutes{font-size:7vmin; font-weight:800; line-height:1;}
+  .unit{font-size:1.9vmin; color:var(--muted); margin-top:0.2vmin;}
+  .delta{font-size:1.9vmin; font-weight:700; margin-top:0.6vmin;}
+  .typical{font-size:1.5vmin; color:var(--muted); margin-top:0.3vmin;}
+
+  .banner{
+    display:none; border-radius:0.8vmin; padding:0.9vmin 1.2vmin;
+    font-size:1.5vmin; font-weight:700;
+  }
+  .banner.show{display:block;}
+  .banner.warn{background:var(--banner-warn-bg); color:var(--banner-warn-ink);}
+  .banner.closed{background:var(--banner-closed-bg); color:var(--banner-closed-ink);}
+
+  .route.closed .headline, .route.closed .via{color:var(--muted);}
+  .route.closed .minutes{color:var(--muted); font-weight:700;}
+
+  .tag{
+    position:fixed; right:1.2vmin; bottom:1.2vmin; display:none;
+    background:var(--ink); color:#fff; font-size:1.3vmin; font-weight:600;
+    padding:0.4vmin 1vmin; border-radius:2vmin; opacity:0.75;
+  }
+  .board.demo .tag{display:block;}
+
+  /* Narrow / portrait fallback (future webpage reuse) */
+  @media (max-aspect-ratio: 1/1){
+    body{overflow:auto;}
+    .board{height:auto;}
+    main{grid-template-columns:1fr; grid-auto-rows:auto;}
+    .panel{padding:2.4vmin;}
+    .minutes{font-size:11vmin;}
+  }
+</style>
+</head>
+<body>
+<div class="board" id="board">
+  <header>
+    <div class="id">
+      <!-- Optional: <img src="logo.svg" alt=""> -->
+      <div>
+        <h1 id="resort-name">Big Bear Mountain Resort</h1>
+        <div class="sub"><span id="base-label">Current drive times from resort</span> · <span id="updated">Updated —</span></div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="clockcard">
+        <div class="time" id="clock">—:—</div>
+        <div class="date" id="date"></div>
+      </div>
+      <div class="legend">
+        <span><span class="dot" style="background:var(--light)"></span>Light</span>
+        <span><span class="dot" style="background:var(--moderate)"></span>Moderate</span>
+        <span><span class="dot" style="background:var(--heavy)"></span>Heavy / Closed</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="notice">Live drive times are temporarily unavailable. Check Google Maps or Caltrans QuickMap before heading down the mountain.</div>
+
+  <main id="cards"></main>
+  <div class="tag">Sample data</div>
+</div>
+
+<script>
+/* ==============================================================
+   CONFIG — the only block you should need to touch.
+   The page renders whatever the feed contains; route definitions
+   live in the poller, not here.
+   ============================================================== */
+const CONFIG = {
+  staleMinutes: 20,          // older than this -> hide numbers, show notice
+  refreshSeconds: 60,        // how often the page re-fetches the feed
+  bases: {
+    summit:     { label: "Drive times from Snow Summit / Bear Mountain", feed: "routes.json" },
+    snowvalley: { label: "Drive times from Snow Valley",                 feed: "routes-sv.json" }
+  },
+  defaultBase: "summit"
+};
+
+/* Sample data so the file demos standalone (and during dev).
+   Matches the approved prototype content. */
+const SAMPLE = {
+  updatedAt: new Date().toISOString(),
+  routes: [
+    { headline:"To 210 Freeway", via:"via CA-18 Running Springs to CA-330",
+      desc:"Toward Highland · LA / OC / Inland Empire",
+      status:"open", minutes:22, typical:18, message:"Moderate traffic on CA-330" },
+    { headline:"To 210 Freeway", via:"via CA-18 through Running Springs",
+      desc:"Toward Crestline & San Bernardino",
+      status:"open", minutes:18, typical:15, message:"Heavy traffic near Running Springs" },
+    { headline:"To 10 Freeway", via:"via CA-38",
+      desc:"Toward Angelus Oaks & Redlands",
+      status:"closed", message:"CA-38 closed — storm damage. Use CA-330 or CA-18 instead." },
+    { headline:"To 15 Freeway", via:"via CA-18 Lucerne Valley",
+      desc:"The back way · High Desert & Las Vegas",
+      status:"open", minutes:27, typical:25 }
+  ]
+};
+
+const params = new URLSearchParams(location.search);
+const base = CONFIG.bases[params.get("base")] ? params.get("base") : CONFIG.defaultBase;
+document.getElementById("base-label").textContent = CONFIG.bases[base].label;
+
+const ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3 3 6v15l6-3 6 3 6-3V3l-6 3-6-3z"/><path d="M9 3v15M15 6v15"/></svg>';
+
+let lastGood = null;
+let usingSample = false;
+
+function levelFor(r){
+  if (r.status === "closed") return { key:"closed", label:"Closed", color:"var(--heavy)" };
+  const delta = (r.minutes ?? 0) - (r.typical ?? r.minutes ?? 0);
+  if (delta <= 2)  return { key:"light",    label:"Light traffic",    color:"var(--light)",    delta };
+  if (delta <= 12) return { key:"moderate", label:"Moderate traffic", color:"var(--moderate)", delta };
+  return              { key:"heavy",    label:"Heavy traffic",    color:"var(--heavy)",    delta };
+}
+
+function card(r, stale){
+  const lv = levelFor(r);
+  const closed = r.status === "closed";
+  let panel, banner = "";
+
+  if (stale){
+    panel = '<div class="minutes">&mdash;</div><div class="unit">temporarily unavailable</div>';
+  } else if (closed){
+    panel = '<div class="minutes">&mdash;</div><div class="unit">route unavailable</div>';
+  } else {
+    const deltaTxt = lv.delta <= 2
+      ? '<div class="delta" style="color:var(--light)">On time</div>'
+      : '<div class="delta" style="color:var(--accent)">+' + lv.delta + ' min</div>';
+    panel = '<div class="minutes">' + r.minutes + '</div><div class="unit">minutes</div>'
+          + deltaTxt
+          + '<div class="typical">Typical: ' + (r.typical ?? r.minutes) + ' min</div>';
+  }
+
+  if (!stale && r.message){
+    banner = '<div class="banner show ' + (closed ? "closed" : "warn") + '">' + r.message + '</div>';
+  }
+
+  return '<section class="route' + (closed ? " closed" : "") + '">'
+    + '<div class="r-head">'
+    +   '<div class="headline">' + ICON + '<span>' + r.headline + '</span></div>'
+    +   '<div class="via">' + r.via + '</div>'
+    +   (r.desc ? '<div class="desc">' + r.desc + '</div>' : '')
+    +   '<div class="status" style="color:' + lv.color + '"><span class="dot" style="background:' + lv.color + '"></span>' + (stale ? "Status unavailable" : lv.label) + '</div>'
+    + '</div>'
+    + '<div class="rule" style="background:' + (stale ? "var(--line)" : lv.color) + '"></div>'
+    + '<div class="panel">' + panel + '</div>'
+    + banner
+    + '</section>';
+}
+
+function render(){
+  const data = lastGood || SAMPLE;
+  const ageMin = (Date.now() - new Date(data.updatedAt).getTime()) / 60000;
+  const stale = !usingSample && ageMin > CONFIG.staleMinutes;
+
+  const board = document.getElementById("board");
+  board.classList.toggle("stale", stale);
+  board.classList.toggle("demo", usingSample);
+
+  document.getElementById("updated").textContent = stale
+    ? "Updated " + Math.round(ageMin) + " min ago"
+    : "Updated " + new Date(data.updatedAt).toLocaleTimeString([], {hour:"numeric", minute:"2-digit"});
+
+  document.getElementById("cards").innerHTML = data.routes.map(r => card(r, stale)).join("");
+}
+
+async function refresh(){
+  try{
+    const res = await fetch(CONFIG.bases[base].feed + "?t=" + Date.now(), { cache: "no-store" });
+    if (!res.ok) throw new Error(res.status);
+    lastGood = await res.json();
+    usingSample = false;
+  } catch (e){
+    if (!lastGood) usingSample = true;   /* keep last good data; staleness handles display */
+  }
+  render();
+}
+
+function tick(){
+  const now = new Date();
+  document.getElementById("clock").textContent = now.toLocaleTimeString([], {hour:"numeric", minute:"2-digit"});
+  document.getElementById("date").textContent = now.toLocaleDateString([], {weekday:"long", month:"short", day:"numeric"});
+}
+
+tick(); setInterval(tick, 1000);
+refresh(); setInterval(refresh, CONFIG.refreshSeconds * 1000);
+</script>
+</body>
+</html>
