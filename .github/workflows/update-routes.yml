@@ -1,0 +1,37 @@
+name: Update Drive Times
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'   # runs every 5 minutes, all day
+  workflow_dispatch:          # lets you press "Run" manually from GitHub to test
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write          # allows the job to commit routes.json back to the repo
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Fetch drive times from TomTom
+        env:
+          TOMTOM_KEY: ${{ secrets.TOMTOM_KEY }}
+        run: python update_routes.py
+
+      - name: Save routes.json to repo
+        run: |
+          git config user.name  "Drive Times Bot"
+          git config user.email "drivetimes@bbmr.local"
+          git add routes.json
+          git diff --staged --quiet || git commit -m "chore: update drive times [skip ci]"
+          git push
