@@ -10,7 +10,7 @@ KEY = os.environ["TOMTOM_KEY"]
 OVERRIDES = {
     "330":  { "status": "open",   "message": None },
     "18rs": { "status": "open",   "message": None },
-    "38":   { "status": "closed", "message": "CA-38 closed — storm damage. Use CA-330 or CA-18 instead." },
+    "38":  { "status": "open", "message": None },
     "18lv": { "status": "open",   "message": None },
 }
 
