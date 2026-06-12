@@ -10,14 +10,14 @@ KEY = os.environ["TOMTOM_KEY"]
 OVERRIDES = {
     "330":  { "status": "open",   "message": None },
     "18rs": { "status": "open",   "message": None },
-    "38":  { "status": "open", "message": None },
+    "38":   { "status": "open",   "message": None },
     "18lv": { "status": "open",   "message": None },
 }
 
 # ── ORIGIN ─────────────────────────────────────────────────────────────────────
 # Snow Summit / Bear Mountain base area.
 # Swap this for the Snow Valley coordinates when building the SV feed.
-ORIGIN = "34.237021,-116.888654"
+ORIGIN = "34.236818, -116.888750"
 
 # ── ROUTES ─────────────────────────────────────────────────────────────────────
 # Waypoints pin the route to a specific road so TomTom can't pick a shortcut.
@@ -30,32 +30,32 @@ ROUTES = [
         "headline": "To 210 Freeway",
         "via": "via CA-18 Running Springs to CA-330",
         "desc": "Toward Highland · LA / OC / Inland Empire",
-        "waypoints": ["34.164402,-117.182765"],
-        "dest": "34.131517,-117.201018"
+        "waypoints": ["34.205167, -117.112798", "34.179970, -117.163001"],
+        "dest": "34.136158, -117.191792",
     },
     {
         "id": "18rs",
         "headline": "To 210 Freeway",
         "via": "via CA-18 through Running Springs",
         "desc": "Toward Crestline & San Bernardino",
-        "waypoints": ["34.227517,-117.272656"],
-        "dest": "34.145807,-117.278808"
+        "waypoints": ["34.226757, -117.134675"],
+        "dest": "34.147017, -117.279029",
     },
     {
         "id": "38",
         "headline": "To 10 Freeway",
         "via": "via CA-38",
         "desc": "Toward Angelus Oaks & Redlands",
-        "waypoints": ["34.099401,-117.026577"],
-        "dest": "34.070172,-117.182595"
+        "waypoints": ["34.126930, -116.984277"],
+        "dest": "34.070346, -117.182765",
     },
     {
         "id": "18lv",
         "headline": "To 15 Freeway",
         "via": "via CA-18 Lucerne Valley",
         "desc": "The back way · High Desert & Las Vegas",
-        "waypoints": ["34.471944,-117.107475"],
-        "dest": "34.470457,-117.346081"
+        "waypoints": ["34.446706, -116.993016"],
+        "dest": "34.4163,-117.3017",
     },
 ]
 
