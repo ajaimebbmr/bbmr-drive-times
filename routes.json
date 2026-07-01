@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-30T22:02:12.103835+00:00",
+  "updatedAt": "2026-07-01T10:55:59.552148+00:00",
   "routes": [
     {
       "headline": "To 210 Freeway",
@@ -14,7 +14,7 @@
       "via": "via CA-18 through Running Springs",
       "desc": "Toward Crestline & San Bernardino",
       "status": "open",
-      "minutes": 70,
+      "minutes": 65,
       "typical": 65
     },
     {
@@ -22,7 +22,7 @@
       "via": "via CA-38",
       "desc": "Toward Angelus Oaks & Redlands",
       "status": "open",
-      "minutes": 75,
+      "minutes": 65,
       "typical": 70
     },
     {
@@ -30,7 +30,7 @@
       "via": "via CA-18 Lucerne Valley",
       "desc": "The back way \u00b7 High Desert & Las Vegas",
       "status": "open",
-      "minutes": 70,
+      "minutes": 65,
       "typical": 65
     }
   ]
