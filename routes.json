@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-14T21:16:22.631387+00:00",
+  "updatedAt": "2026-07-14T22:26:02.504714+00:00",
   "routes": [
     {
       "headline": "To 210 Freeway",
@@ -15,14 +15,14 @@
       "desc": "Toward Crestline & San Bernardino",
       "status": "open",
       "minutes": 70,
-      "typical": 65
+      "typical": 70
     },
     {
       "headline": "To 10 Freeway",
       "via": "via CA-38",
       "desc": "Toward Angelus Oaks & Redlands",
       "status": "open",
-      "minutes": 70,
+      "minutes": 75,
       "typical": 70
     },
     {
