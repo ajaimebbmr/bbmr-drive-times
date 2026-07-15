@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-15T22:41:37.437306+00:00",
+  "updatedAt": "2026-07-15T23:42:22.594620+00:00",
   "routes": [
     {
       "headline": "To 210 Freeway",
@@ -22,7 +22,7 @@
       "via": "via CA-38",
       "desc": "Toward Angelus Oaks & Redlands",
       "status": "open",
-      "minutes": 75,
+      "minutes": 70,
       "typical": 70
     },
     {
