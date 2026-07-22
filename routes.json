@@ -1,12 +1,12 @@
 {
-  "updatedAt": "2026-07-22T03:40:32.927913+00:00",
+  "updatedAt": "2026-07-22T06:14:58.026989+00:00",
   "routes": [
     {
       "headline": "To 210 Freeway",
       "via": "via CA-18 Running Springs to CA-330",
       "desc": "Toward Highland \u00b7 LA / OC / Inland Empire",
       "status": "open",
-      "minutes": 55,
+      "minutes": 60,
       "typical": 55
     },
     {
@@ -22,7 +22,7 @@
       "via": "via CA-38",
       "desc": "Toward Angelus Oaks & Redlands",
       "status": "open",
-      "minutes": 70,
+      "minutes": 75,
       "typical": 70
     },
     {
