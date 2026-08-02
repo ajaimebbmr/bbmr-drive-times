@@ -1,12 +1,12 @@
 {
-  "updatedAt": "2026-08-02T15:32:26.264957+00:00",
+  "updatedAt": "2026-08-02T16:31:53.122430+00:00",
   "routes": [
     {
       "headline": "To 210 Freeway",
       "via": "via CA-18 Running Springs to CA-330",
       "desc": "Toward Highland \u00b7 LA / OC / Inland Empire",
       "status": "open",
-      "minutes": 60,
+      "minutes": 65,
       "typical": 55
     },
     {
@@ -14,7 +14,7 @@
       "via": "via CA-18 through Running Springs",
       "desc": "Toward Crestline & San Bernardino",
       "status": "open",
-      "minutes": 70,
+      "minutes": 75,
       "typical": 65
     },
     {
