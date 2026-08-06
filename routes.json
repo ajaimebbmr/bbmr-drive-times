@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-05T23:15:10.932952+00:00",
+  "updatedAt": "2026-08-06T00:13:10.136889+00:00",
   "routes": [
     {
       "headline": "To 210 Freeway",
@@ -15,7 +15,7 @@
       "desc": "Toward Crestline & San Bernardino",
       "status": "open",
       "minutes": 70,
-      "typical": 70
+      "typical": 65
     },
     {
       "headline": "To 10 Freeway",
