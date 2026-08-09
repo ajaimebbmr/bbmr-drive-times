@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-09T07:33:39.712472+00:00",
+  "updatedAt": "2026-08-09T08:20:05.015094+00:00",
   "routes": [
     {
       "headline": "To 210 Freeway",
@@ -30,7 +30,7 @@
       "via": "via CA-18 Lucerne Valley",
       "desc": "The back way \u00b7 High Desert & Las Vegas",
       "status": "open",
-      "minutes": 70,
+      "minutes": 65,
       "typical": 65
     }
   ]
