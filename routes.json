@@ -1,12 +1,12 @@
 {
-  "updatedAt": "2026-08-11T07:50:17.323576+00:00",
+  "updatedAt": "2026-08-11T08:42:28.720385+00:00",
   "routes": [
     {
       "headline": "To 210 Freeway",
       "via": "via CA-18 Running Springs to CA-330",
       "desc": "Toward Highland \u00b7 LA / OC / Inland Empire",
       "status": "open",
-      "minutes": 55,
+      "minutes": 50,
       "typical": 55
     },
     {
