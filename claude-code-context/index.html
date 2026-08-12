@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Big Bear Mountain Resort — Current Drive Times</title>
+<style>
+  /* ============================================================
+     BBMR Drive Time Signage — matches approved Figma design
+     (BBMR Traffic Signage | Resort 2025, node 64:2767)
+     Canvas: 1920x1080. Scales to fit any screen via transform.
+     ============================================================ */
+  /* Licensed brand fonts. These @font-face rules are already wired up: drop the
+     files into /var/www/drivetimes/fonts/ under the names below and they take
+     effect on reload — no code change needed. Until then each rule fails
+     silently and the stack falls through to Bitter / Montserrat.
+     Note: the fallbacks run wider than the real faces, which is why the longest
+     route label ("via CA-18 Running Springs to CA-330") currently wraps to two
+     lines. It fits on one line in the Figma design and should stop wrapping once
+     Gelica is in place — worth re-checking then. */
+  @font-face{font-family:'Gelica'; font-weight:600; font-display:swap;
+    src:url('fonts/gelica-semibold.woff2') format('woff2'), url('fonts/gelica-semibold.otf') format('opentype');}
+  @font-face{font-family:'Gelica'; font-weight:700; font-display:swap;
+    src:url('fonts/gelica-bold.woff2') format('woff2'), url('fonts/gelica-bold.otf') format('opentype');}
+  @font-face{font-family:'Proxima Nova'; font-weight:500; font-display:swap;
+    src:url('fonts/proximanova-medium.woff2') format('woff2'), url('fonts/proximanova-medium.otf') format('opentype');}
+  @font-face{font-family:'Proxima Nova'; font-weight:600; font-display:swap;
+    src:url('fonts/proximanova-semibold.woff2') format('woff2'), url('fonts/proximanova-semibold.otf') format('opentype');}
+  @font-face{font-family:'Proxima Nova'; font-weight:700; font-display:swap;
+    src:url('fonts/proximanova-bold.woff2') format('woff2'), url('fonts/proximanova-bold.otf') format('opentype');}
+  @font-face{font-family:'Proxima Nova'; font-weight:800; font-display:swap;
+    src:url('fonts/proximanova-extrabold.woff2') format('woff2'), url('fonts/proximanova-extrabold.otf') format('opentype');}
+
+  :root{
+    --ink:#252525;
+    --page:#f4f4f4;
+    --card:#ffffff;
+    --border-default:#a3a3a3;
+    --orange:#f68c42;   /* slow / moderate */
+    --red:#ea1609;      /* jam / closed   */
+    --green:#2b8028;    /* normal / on time */
+    --font-display:'Gelica','Bitter','Roboto Slab',Georgia,serif;
+    --font-body:'Proxima Nova','Montserrat','Helvetica Neue',Arial,sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{width:100%; height:100%; background:var(--page); overflow:hidden;}
+
+  /* Fixed 1920x1080 stage, scaled to viewport */
+  #stage{
+    position:absolute; top:50%; left:50%;
+    width:1920px; height:1080px;
+    transform-origin:center center;
+    background:var(--page);
+    display:flex; flex-direction:column;
+    font-family:var(--font-body); color:var(--ink);
+  }
+
+  /* ---------- header ---------- */
+  header{
+    background:var(--card); display:flex; align-items:center; justify-content:space-between;
+    padding:16px; border-radius:10px 10px 0 0; flex:none;
+  }
+  .id{display:flex; align-items:center; gap:24px;}
+  .logo{height:100px; width:auto; display:block;}
+  .logo-fallback{
+    height:100px; display:flex; align-items:center; padding:0 8px;
+    font-family:var(--font-display); font-weight:600; font-size:34px; color:var(--ink);
+    letter-spacing:-0.5px; line-height:1; text-align:left;
+  }
+  h1{
+    font-family:var(--font-display); font-weight:600; font-size:64px;
+    line-height:1.2; text-transform:capitalize; white-space:nowrap;
+  }
+  .time-block{display:flex; flex-direction:column; gap:8px; align-items:center;}
+  .time-card{
+    background:var(--page); border:1px solid var(--border-default); border-radius:10px;
+    padding:12px; display:flex; flex-direction:column; gap:4px; align-items:center; min-width:176px;
+  }
+  .clock{font-family:var(--font-body); font-weight:700; font-size:40px; line-height:1.2; text-transform:uppercase;}
+  .date{font-family:var(--font-body); font-weight:800; font-size:12px; letter-spacing:0.4px; text-transform:uppercase;}
+  .updated{display:flex; align-items:center; gap:8px; justify-content:center;}
+  .updated svg{width:14px; height:14px;}
+  .updated span{font-family:var(--font-body); font-weight:500; font-size:14px; text-transform:capitalize;}
+  .schedule-note{font-family:var(--font-body); font-weight:500; font-size:12px; color:#6b6b6b; text-align:center;}
+
+  /* ---------- cards grid ---------- */
+  .cards{flex:1; padding:16px; min-height:0;}
+  .grid{
+    height:100%; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr;
+    gap:16px;
+  }
+  .card{
+    background:var(--card); border:4px solid var(--border-default); border-radius:10px;
+    overflow:hidden; display:flex; flex-direction:column;
+  }
+  .card.slow{border-color:var(--orange);}
+  .card.jam,.card.closed{border-color:var(--red);}
+  .card.normal{border-color:var(--green);}
+
+  .card-top{padding:16px 24px; display:flex; flex-direction:column; gap:8px;}
+  .route-line{display:flex; align-items:center; gap:16px; width:100%;}
+  .status-icon{width:53px; height:47px; flex:none; display:flex; align-items:center; justify-content:center;}
+  .status-icon svg{width:100%; height:100%;}
+  .route-num{
+    font-family:var(--font-display); font-weight:600; font-size:64px; line-height:1.2;
+    text-transform:uppercase; white-space:nowrap;
+  }
+  .route-via{
+    font-family:var(--font-display); font-weight:600; font-size:32px; line-height:1.2;
+    text-transform:capitalize; flex:1; align-self:flex-end; padding-bottom:4px;
+  }
+  .pill{
+    background:var(--card); border:2px solid var(--border-default); border-radius:10px;
+    padding:8px 16px; display:flex; align-items:center; gap:8px; width:100%;
+  }
+  .card.slow .pill{border-color:var(--orange);}
+  .card.jam .pill,.card.closed .pill{border-color:var(--red);}
+  .card.normal .pill{border-color:var(--green);}
+  .pill svg{width:20px; height:20px; flex:none;}
+  .pill span{font-family:var(--font-display); font-weight:700; font-size:24px; line-height:1.2; text-transform:capitalize;}
+
+  .card-stat{
+    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:16px 24px 24px; gap:8px;
+  }
+  .stat-num-row{display:flex; align-items:flex-end; gap:4px;}
+  .stat-num{font-family:var(--font-body); font-weight:700; font-size:144px; line-height:1; white-space:nowrap;}
+  .stat-unit{font-family:var(--font-display); font-weight:600; font-size:32px; line-height:1.2; padding-bottom:18px;}
+  .stat-delta{font-family:var(--font-display); font-weight:600; font-size:40px; line-height:1.2; text-transform:capitalize;}
+  .stat-typical{font-family:var(--font-body); font-weight:600; font-size:32px; line-height:1.2;}
+
+  /* stale full-board notice replaces the grid content subtly */
+  .notice{
+    display:none; background:#fde3c8; color:#7a4310; border-radius:10px;
+    padding:16px 24px; font-family:var(--font-body); font-weight:700; font-size:28px; margin:0 16px 16px;
+  }
+  #stage.stale .notice{display:block;}
+
+  .demo-tag{
+    position:absolute; right:18px; bottom:14px; display:none;
+    background:var(--ink); color:#fff; font-family:var(--font-body); font-weight:600;
+    font-size:18px; padding:4px 14px; border-radius:20px; opacity:0.7;
+  }
+  #stage.demo .demo-tag{display:block;}
+</style>
+</head>
+<body>
+<div id="stage">
+  <header>
+    <div class="id">
+      <div id="logo-slot"></div>
+      <h1>Current Drive Times From Resort</h1>
+    </div>
+    <div class="time-block">
+      <div class="time-card">
+        <div class="clock" id="clock">—:—</div>
+        <div class="date" id="date"></div>
+      </div>
+      <div class="updated">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#252525" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        <span id="updated">Last updated: —</span>
+      </div>
+      <div class="schedule-note" id="scheduleNote"></div>
+    </div>
+  </header>
+  <div class="notice" id="notice">Live drive times are temporarily unavailable. Check Google Maps or Caltrans QuickMap before heading down the mountain.</div>
+  <div class="cards"><div class="grid" id="grid"></div></div>
+  <div class="demo-tag">Sample data</div>
+</div>
+
+<script>
+const CONFIG = {
+  staleMinutes: 20,
+  refreshSeconds: 60,
+  /* Must match update_all.py's START_HOUR/END_HOUR and the crontab interval. */
+  scheduleNote: "Updates every 8 min · 10am–6pm PT",
+  bases: {
+    bearmountain: { logo: "logos/bear-mountain.svg",  alt: "Bear Mountain", feed: "routes-bm.json" },
+    snowvalley:   { logo: "logos/snow-valley.png",    alt: "Snow Valley",   feed: "routes-sv.json" },
+    snowsummit:   { logo: "logos/snow-summit.svg",    alt: "Snow Summit",   feed: "routes-ss.json" }
+  },
+  defaultBase: "bearmountain"
+};
+
+/* Winding-road glyph with a colored alert badge, traced from the approved Figma
+   design (node 64:2767). The road is identical in every state — only the badge
+   colour changes, and the badge always carries "!" (never a check mark). */
+const roadIcon = badge =>
+  '<svg viewBox="0 0 53 47" fill="none">' +
+    '<g stroke="#252525" stroke-width="2.5" stroke-linecap="round">' +
+      '<path d="M20.5 7.5C17 9 10.9 12 10.5 16.5c0 4 1.6 9.5 2.5 14c0 4.5-3.7 10.1-10.6 15.3"/>' +
+      '<path d="M31.5 7.5c-2.5 2.5-6.4 4.5-6.5 8c.1 4.5 11.1 10 13.5 19c.2 5-1 9-3.7 11.3"/>' +
+      '<path d="M18.2 18.9 19.9 22.8"/>' +
+      '<path d="M24.1 29.4 25.4 33.8"/>' +
+      '<path d="M23.4 41.7 21.1 45.5"/>' +
+    '</g>' +
+    '<circle cx="44.5" cy="8.5" r="8.5" fill="' + badge + '"/>' +
+    '<path d="M44.5 4.4v5" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/>' +
+    '<circle cx="44.5" cy="13.5" r="1.4" fill="#fff"/>' +
+  '</svg>';
+
+const ICONS = {
+  slow:   roadIcon("#f68c42"),
+  jam:    roadIcon("#ea1609"),
+  closed: roadIcon("#ea1609"),
+  normal: roadIcon("#2b8028")
+};
+const PILL_ICONS = {
+  warn:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 21h20L12 3z"/><path d="M12 9v5M12 17.5v.5"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>'
+};
+
+const SAMPLE = {
+  updatedAt: new Date().toISOString(),
+  routes: [
+    { num:"CA-210", via:"via CA-18 Running Springs to CA-330", status:"open", minutes:29, typical:25 },
+    { num:"CA-210", via:"via CA-18 Running Springs",           status:"open", minutes:18, typical:15 },
+    { num:"CA-10",  via:"via CA-38",                            status:"closed", message:"CA-38 closed — storm damage. Use CA-330 or CA-18 instead." },
+    { num:"CA-15",  via:"via CA-18 Lucerne Valley",             status:"open", minutes:30, typical:30 }
+  ]
+};
+
+const params = new URLSearchParams(location.search);
+const baseKey = CONFIG.bases[params.get("base")] ? params.get("base") : CONFIG.defaultBase;
+const base = CONFIG.bases[baseKey];
+
+document.getElementById("scheduleNote").textContent = CONFIG.scheduleNote;
+
+/* logo: try the file, fall back to a text wordmark if it 404s */
+(function setLogo(){
+  const slot = document.getElementById("logo-slot");
+  const img = new Image();
+  img.className = "logo"; img.alt = base.alt;
+  img.onload = () => slot.appendChild(img);
+  img.onerror = () => { slot.innerHTML = '<div class="logo-fallback">' + base.alt + '</div>'; };
+  img.src = base.logo;
+})();
+
+function level(r){
+  if (r.status === "closed") return { key:"closed", label:"Closed" };
+  const d = (r.minutes ?? 0) - (r.typical ?? r.minutes ?? 0);
+  if (d <= 2)  return { key:"normal", label:"Normal",      delta:d };
+  if (d <= 12) return { key:"slow",   label:"Slow",        delta:d };
+  return            { key:"jam",    label:"Traffic Jam", delta:d };
+}
+
+function card(r, stale){
+  const lv = level(r);
+  const closed = r.status === "closed" || r.status === "unknown";
+  const pillIcon = (lv.key === "normal") ? PILL_ICONS.check : PILL_ICONS.warn;
+  const pillLabel = stale ? "Status unavailable" : ("Traffic: " + lv.label);
+
+  let statHtml;
+  if (stale || closed){
+    statHtml = '<div class="stat-num-row"><span class="stat-num">--</span></div>';
+  } else {
+    const delta = lv.delta <= 2 ? "On Time" : ("+" + lv.delta + " minutes");
+    statHtml =
+      '<div class="stat-num-row"><span class="stat-num">' + r.minutes + '</span><span class="stat-unit">mins</span></div>' +
+      '<div class="stat-delta">' + delta + '</div>' +
+      '<div class="stat-typical">Typical: ' + (r.typical ?? r.minutes) + ' minutes</div>';
+  }
+
+  return '' +
+    '<div class="card ' + (stale ? "" : lv.key) + '">' +
+      '<div class="card-top">' +
+        '<div class="route-line">' +
+          '<div class="status-icon">' + (ICONS[lv.key] || ICONS.slow) + '</div>' +
+          '<span class="route-num">' + r.num + '</span>' +
+          '<span class="route-via">' + r.via + '</span>' +
+        '</div>' +
+        '<div class="pill">' + pillIcon + '<span>' + pillLabel + '</span></div>' +
+      '</div>' +
+      '<div class="card-stat">' + statHtml + '</div>' +
+    '</div>';
+}
+
+let lastGood = null, usingSample = false;
+
+function render(){
+  const data = lastGood || SAMPLE;
+  const ageMin = (Date.now() - new Date(data.updatedAt).getTime()) / 60000;
+  const stale = !usingSample && ageMin > CONFIG.staleMinutes;
+  const stage = document.getElementById("stage");
+  stage.classList.toggle("stale", stale);
+  stage.classList.toggle("demo", usingSample);
+
+  document.getElementById("updated").textContent = stale
+    ? "Last updated: " + Math.round(ageMin) + " min ago"
+    : "Last updated: " + new Date(data.updatedAt).toLocaleTimeString([], {hour:"numeric", minute:"2-digit"}).toLowerCase();
+
+  document.getElementById("grid").innerHTML = data.routes.map(r => card(r, stale)).join("");
+}
+
+async function refresh(){
+  try{
+    const res = await fetch(base.feed + "?t=" + Date.now(), { cache:"no-store" });
+    if (!res.ok) throw new Error(res.status);
+    lastGood = await res.json(); usingSample = false;
+  } catch(e){ if (!lastGood) usingSample = true; }
+  render();
+}
+
+function tick(){
+  const now = new Date();
+  document.getElementById("clock").textContent =
+    now.toLocaleTimeString([], {hour:"numeric", minute:"2-digit"});
+  document.getElementById("date").textContent =
+    now.toLocaleDateString([], {weekday:"long", month:"short", day:"numeric"});
+}
+
+/* scale 1920x1080 stage to fit the screen */
+function fit(){
+  const s = Math.min(window.innerWidth/1920, window.innerHeight/1080);
+  document.getElementById("stage").style.transform = "translate(-50%,-50%) scale(" + s + ")";
+}
+window.addEventListener("resize", fit); fit();
+
+tick(); setInterval(tick, 1000);
+refresh(); setInterval(refresh, CONFIG.refreshSeconds*1000);
+</script>
+</body>
+</html>

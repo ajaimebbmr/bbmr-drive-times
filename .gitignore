@@ -1,0 +1,8 @@
+# Credentials / keys — never commit
+*.ppk
+*.pem
+*.key
+
+# OS cruft
+Thumbs.db
+.DS_Store
