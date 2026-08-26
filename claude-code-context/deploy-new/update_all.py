@@ -16,7 +16,7 @@ WEB_ROOT = "/var/www/drivetimes"
 OVERRIDES = {
     "r1": { "status": "open",   "message": None },
     "r2": { "status": "open",   "message": None },
-    "r3": { "status": "closed", "message": "CA-38 closed — storm damage. Use CA-330 or CA-18 instead." },
+    "r3": { "status": "open",   "message": None },
     "r4": { "status": "open",   "message": None },
 }
 
